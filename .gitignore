@@ -1,0 +1,30 @@
+# Environment files
+.env
+.env.local
+.env.production
+
+# Database data
+postgres_data/
+redis_data/
+rabbitmq_data/
+
+# Backup files
+*.sql.backup
+*.dump
+
+# Docker
+.docker/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/

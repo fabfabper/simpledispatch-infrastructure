@@ -1,0 +1,78 @@
+version: "3.8"
+
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
+    container_name: simpledispatch-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: simpledispatch
+      POSTGRES_USER: simpledispatch_user
+      POSTGRES_PASSWORD: simpledispatch_password
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+    networks:
+      - simpledispatch-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U simpledispatch_user -d simpledispatch"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Example: Redis for caching/session management (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: simpledispatch-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - simpledispatch-network
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Example: Message broker with RabbitMQ (optional)
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: simpledispatch-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: simpledispatch_user
+      RABBITMQ_DEFAULT_PASS: simpledispatch_password
+    ports:
+      - "5672:5672" # AMQP port
+      - "15672:15672" # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - simpledispatch-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+
+networks:
+  simpledispatch-network:
+    driver: bridge
