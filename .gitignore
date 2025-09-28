@@ -15,6 +15,17 @@ rabbitmq_data/
 # Docker
 .docker/
 
+# Pelias geocoding data and cache
+pelias-project/data/
+pelias-project/.env
+pelias-docker/
+*.osm.pbf
+*.db.bz2
+*.sqlite3
+
+# Elasticsearch data
+**/elasticsearch/
+
 # IDE
 .vscode/
 .idea/
@@ -28,3 +39,8 @@ Thumbs.db
 # Logs
 *.log
 logs/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
